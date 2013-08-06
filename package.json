@@ -1,0 +1,19 @@
+{
+  "name": "luxapi",
+  "version": "0.0.1",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "express": "~3.3.4",
+    "lodash": "~1.3.1",
+    "request": "~2.25.0",
+    "xmljson": "~0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {},
+  "author": {
+    "name": "Ben Elsen",
+    "url": "http://benelsen.com"
+  },
+  "license": "BSD"
+}
