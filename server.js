@@ -1,6 +1,5 @@
-var express = require('express');
-
-var app = express();
+var express = require('express'),
+    app = express();
 
 // Allow CORS
 app.all('/*', function(req, res, next) {
