@@ -10,7 +10,6 @@ app.all('/*', function(req, res, next) {
 });
 
 // vdl
-
 var vdl = require('./vdl');
 
 app.get('/vdl/parking.json',    vdl.parking.json);
