@@ -1,4 +1,5 @@
 
 module.exports = {
-  parking: require('./parking')
+  parking: require('./parking'),
+  bus: require('./bus'),
 };
