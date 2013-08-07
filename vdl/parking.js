@@ -78,7 +78,8 @@ var cleanRawData = function( data ) {
 
   return {
     date: new Date(data.rss.channel.lastBuildDate),
-    parkings: items
+    parkings: items,
+    licenseInformation: "Data by Ville de Luxembourg under CC BY 3.0 LU"
   };
 
 };
@@ -133,7 +134,8 @@ module.exports = {
 
       var geojson = makeGeoJSON(data.parkings);
       geojson.properties = {
-        date: data.date
+        date: data.date,
+        licenseInformation: data.licenseInformation
       };
 
       res.send(geojson);
