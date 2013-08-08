@@ -25,5 +25,5 @@ app.get('/status', function(req, res) {
   res.send(200);
 });
 
-app.listen(4003, '0.0.0.0');
-app.listen(4003, '::');
+app.listen(4003, '127.0.0.1');
+app.listen(4003, '::1');
