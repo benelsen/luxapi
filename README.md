@@ -3,6 +3,9 @@
 ## Endpoints
 - [/vdl/parking.json](http://luxapi.benelsen.com/vdl/parking.json)
 - [/vdl/parking.geojson](http://luxapi.benelsen.com/vdl/parking.geojson)
+- [/vdl/bus/routes.json](http://luxapi.benelsen.com/vdl/bus/routes.json)
+- [/vdl/bus/:route/stops.json](http://luxapi.benelsen.com/vdl/bus/1/stops.json)
+- [/vdl/bus/:route/:stop/next.json](http://luxapi.benelsen.com/vdl/bus/1/Gare%20Centrale/next.json)
 
 ## Installation
 
