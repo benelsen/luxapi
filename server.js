@@ -1,6 +1,8 @@
 var express = require('express'),
     app = express();
 
+var config = JSON.parse( require('fs').readFileSync(__dirname + '/config.json') );
+
 // Allow CORS
 app.all('/*', function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
@@ -25,5 +27,5 @@ app.get('/status', function(req, res) {
   res.send(200);
 });
 
-app.listen(4003, '127.0.0.1');
-app.listen(4003, '::1');
+app.listen(config.port, '127.0.0.1');
+app.listen(config.port, '::1');

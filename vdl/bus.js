@@ -8,7 +8,9 @@ var jsdom = require('jsdom'),
 _.str = require('underscore.string');
 _.mixin(_.str.exports());
 
-var memcached = new Memcached('127.0.0.1:11211', {
+var config = JSON.parse( require('fs').readFileSync(__dirname + '/../config.json') );
+
+var memcached = new Memcached(config.memcached.servers, {
   timeout: 1000
 });
 
@@ -198,6 +200,8 @@ function getNextBusesForStopOnRoute(route, stop, callback) {
     if ( err ) console.error(err);
 
     if ( !err && cached ) {
+
+      console.log('cache');
 
       return callback(err, cached);
 

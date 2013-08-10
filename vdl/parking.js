@@ -6,7 +6,9 @@ var to_json = require('xmljson').to_json,
     _ = require('lodash'),
     Memcached = require('memcached');
 
-var memcached = new Memcached('127.0.0.1:11211', {
+var config = JSON.parse( require('fs').readFileSync(__dirname + '/../config.json') );
+
+var memcached = new Memcached(config.memcached.servers, {
   timeout: 1000
 });
 
