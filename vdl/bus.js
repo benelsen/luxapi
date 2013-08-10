@@ -2,15 +2,26 @@
 // Node:
 // External:
 var jsdom = require('jsdom'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    Memcached = require('memcached');
 
-function getRoutes(callback) {
+_.str = require('underscore.string');
+_.mixin(_.str.exports());
+
+var config = JSON.parse( require('fs').readFileSync(__dirname + '/../config.json') );
+
+var memcached = new Memcached(config.memcached.servers, {
+  timeout: 1000
+});
+
+function getRoutesFromSource(callback) {
 
   var url = 'http://service.vdl.lu/hotcity/mobility/index.php?city=vdl&service=bus';
 
   jsdom.env(
     url,
-    function (errors, window) {
+    function (err, window) {
+      if ( err ) console.error(err);
 
       var stops = window.document.querySelectorAll('ul > li > a');
 
@@ -41,7 +52,37 @@ function getRoutes(callback) {
 
 }
 
-function getStopsOnRoute(route, callback) {
+
+function getRoutes(callback) {
+
+  var key = config.memcached.prefix + '-bus-routes';
+
+  memcached.get(key, function (err, cached) {
+    if ( err ) console.error(err);
+
+    if ( !err && cached ) {
+
+      return callback(err, cached);
+
+    } else {
+
+      getRoutesFromSource(function(err, data) {
+        if ( err ) console.error(err);
+
+        memcached.set(key, data, 24*60*60, function(err) {
+          if ( err ) console.error(err);
+        });
+
+        return callback(err, data);
+
+      });
+
+    }
+
+  });
+}
+
+function getStopsOnRouteFromSource(route, callback) {
 
   var urlTemplate = 'http://service.vdl.lu/hotcity/mobility/index.php?city=vdl&service=bus&routeId=${ route }';
 
@@ -51,7 +92,8 @@ function getStopsOnRoute(route, callback) {
 
   jsdom.env(
     url,
-    function (errors, window) {
+    function (err, window) {
+      if ( err ) console.error(err);
 
       var stops = window.document.querySelectorAll('ul > li > a > h1');
 
@@ -75,7 +117,37 @@ function getStopsOnRoute(route, callback) {
 
 }
 
-function getNextBusesForStopOnRoute(route, stop, callback) {
+function getStopsOnRoute(route, callback) {
+
+  var key = config.memcached.prefix + '-bus-' + route + '-stops';
+
+  memcached.get(key, function (err, cached) {
+    if ( err ) console.error(err);
+
+    if ( !err && cached ) {
+
+      return callback(err, cached);
+
+    } else {
+
+      getStopsOnRouteFromSource(route, function(err, data) {
+        if ( err ) console.error(err);
+
+        memcached.set(key, data, 24*60*60, function(err) {
+          if ( err ) console.error(err);
+        });
+
+        return callback(err, data);
+
+      });
+
+    }
+
+  });
+
+}
+
+function getNextBusesForStopOnRouteFromSource(route, stop, callback) {
 
   var urlTemplate = 'http://service.vdl.lu/hotcity/mobility/index.php?city=vdl&service=bus&routeId=${ route }&stopId=${ stop }&nRows=12';
 
@@ -86,7 +158,8 @@ function getNextBusesForStopOnRoute(route, stop, callback) {
 
   jsdom.env(
     url,
-    function (errors, window) {
+    function (err, window) {
+      if ( err ) console.error(err);
 
       var rows = window.document.querySelectorAll('table > tr');
 
@@ -113,9 +186,39 @@ function getNextBusesForStopOnRoute(route, stop, callback) {
         });
       }
 
-      callback( null, data );
+      callback( err, data );
     }
   );
+
+}
+
+function getNextBusesForStopOnRoute(route, stop, callback) {
+
+  var key = config.memcached.prefix + '-bus-' + route + _.dasherize(stop) + '-next';
+
+  memcached.get(key, function (err, cached) {
+    if ( err ) console.error(err);
+
+    if ( !err && cached ) {
+
+      return callback(err, cached);
+
+    } else {
+
+      getNextBusesForStopOnRouteFromSource(route, stop, function(err, data) {
+        if ( err ) console.error(err);
+
+        memcached.set(key, data, 30, function(err) {
+          if ( err ) console.error(err);
+        });
+
+        return callback(err, data);
+
+      });
+
+    }
+
+  });
 
 }
 
@@ -124,6 +227,7 @@ module.exports = {
   routes: function(req, res) {
 
     getRoutes(function(err, data) {
+      if ( err ) console.error(err);
       res.send(data);
     });
 
@@ -132,6 +236,7 @@ module.exports = {
   stops: function(req, res) {
 
     getStopsOnRoute(~~req.params.route, function(err, data) {
+      if ( err ) console.error(err);
       res.send(data);
     });
 
@@ -140,6 +245,8 @@ module.exports = {
   nextBuses: function(req, res) {
 
     getNextBusesForStopOnRoute(~~req.params.route, req.params.stop, function(err, data) {
+      if ( err ) console.error(err);
+
       if ( data.length === 0 ) return res.send(204);
       res.send(data);
     });
