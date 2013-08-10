@@ -3,17 +3,24 @@
 // External:
 var to_json = require('xmljson').to_json,
     request = require('request'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    Memcached = require('memcached');
+
+var memcached = new Memcached('127.0.0.1:11211', {
+  timeout: 1000
+});
 
 var srcURL = 'http://service.vdl.lu/rss/circulation_guidageparking.php';
 
 var getRawData = function( callback ) {
 
-  request( srcURL, function(err, response, body) {
+  request( srcURL, function(httpError, response, body) {
+    if ( httpError ) console.error(httpError);
 
-    to_json(body, function(error, data) {
+    to_json(body, function(jsonError, data) {
+      if ( jsonError ) console.error(jsonError);
 
-      callback(err || error, data);
+      callback(httpError || jsonError, data);
 
     });
 
@@ -86,11 +93,29 @@ var cleanRawData = function( data ) {
 
 var getCurrentData = function( callback ) {
 
-  getRawData(function(err, data) {
+  memcached.get('luxapi-parking', function (err, cached) {
+    if ( err ) console.error(err);
 
-    var cleanData = cleanRawData(data);
+    if ( !err && cached ) {
 
-    callback(err, cleanData);
+      return callback(null, cached);
+
+    } else {
+
+      getRawData(function(err, data) {
+        if ( err ) console.error(err);
+
+        var cleanData = cleanRawData(data);
+
+        memcached.set('luxapi-parking', cleanData, 60, function(err) {
+          if ( err ) console.error(err);
+        });
+
+        return callback(err, cleanData);
+
+      });
+
+    }
 
   });
 
@@ -112,7 +137,11 @@ var makeGeoJSON = function(data) {
         },
         properties: feature
       };
-    })
+    }),
+    properties: {
+      date: data.date,
+      licenseInformation: data.licenseInformation
+    }
   };
 
 };
@@ -123,6 +152,7 @@ module.exports = {
   json: function(req, res) {
 
     getCurrentData( function(err, data) {
+      if ( err ) console.error(err);
       res.send(data);
     });
 
@@ -131,12 +161,9 @@ module.exports = {
   geojson: function(req, res) {
 
     getCurrentData( function(err, data) {
+      if ( err ) console.error(err);
 
       var geojson = makeGeoJSON(data.parkings);
-      geojson.properties = {
-        date: data.date,
-        licenseInformation: data.licenseInformation
-      };
 
       res.send(geojson);
     });
