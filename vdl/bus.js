@@ -60,13 +60,9 @@ function getRoutes(callback) {
 
     if ( !err && cached ) {
 
-      console.info(key + ' from cache');
-
       return callback(err, cached);
 
     } else {
-
-      console.info(key + ' from source');
 
       getRoutesFromSource(function(err, data) {
         if ( err ) console.error(err);
@@ -128,13 +124,9 @@ function getStopsOnRoute(route, callback) {
 
     if ( !err && cached ) {
 
-      console.info(key + ' from cache');
-
       return callback(err, cached);
 
     } else {
-
-      console.info(key + ' from source');
 
       getStopsOnRouteFromSource(route, function(err, data) {
         if ( err ) console.error(err);
@@ -200,20 +192,16 @@ function getNextBusesForStopOnRouteFromSource(route, stop, callback) {
 
 function getNextBusesForStopOnRoute(route, stop, callback) {
 
-  var key = 'luxapi-bus-' + route + '-' + _.dasherize(stop) + '-next';
+  var key = 'luxapi-bus-' + route + _.dasherize(stop) + '-next';
 
   memcached.get(key, function (err, cached) {
     if ( err ) console.error(err);
 
     if ( !err && cached ) {
 
-      console.info(key + ' from cache');
-
       return callback(err, cached);
 
     } else {
-
-      console.info(key + ' from source');
 
       getNextBusesForStopOnRouteFromSource(route, stop, function(err, data) {
         if ( err ) console.error(err);
