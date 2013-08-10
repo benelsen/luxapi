@@ -86,8 +86,9 @@ var cleanRawData = function( data ) {
   });
 
   return {
-    date: new Date(data.rss.channel.lastBuildDate),
     parkings: items,
+    sourceDate: new Date(data.rss.channel.lastBuildDate),
+    date: new Date(),
     licenseInformation: "Data by Ville de Luxembourg under CC BY 3.0 LU"
   };
 
@@ -95,7 +96,9 @@ var cleanRawData = function( data ) {
 
 var getCurrentData = function( callback ) {
 
-  memcached.get('luxapi-parking', function (err, cached) {
+  var key = config.memcached.prefix + '-parking';
+
+  memcached.get(key, function (err, cached) {
     if ( err ) console.error(err);
 
     if ( !err && cached ) {
@@ -109,7 +112,7 @@ var getCurrentData = function( callback ) {
 
         var cleanData = cleanRawData(data);
 
-        memcached.set('luxapi-parking', cleanData, 60, function(err) {
+        memcached.set(key, cleanData, 60, function(err) {
           if ( err ) console.error(err);
         });
 
@@ -127,7 +130,8 @@ var makeGeoJSON = function(data) {
 
   return {
     type: 'FeatureCollection',
-    features: data.map( function(feature) {
+    features: data.parkings.map( function(feature) {
+
       return {
         type: 'Feature',
         geometry: {
@@ -139,9 +143,11 @@ var makeGeoJSON = function(data) {
         },
         properties: feature
       };
+
     }),
     properties: {
       date: data.date,
+      sourceDate: data.sourceDate,
       licenseInformation: data.licenseInformation
     }
   };
@@ -165,7 +171,7 @@ module.exports = {
     getCurrentData( function(err, data) {
       if ( err ) console.error(err);
 
-      var geojson = makeGeoJSON(data.parkings);
+      var geojson = makeGeoJSON(data);
 
       res.send(geojson);
     });

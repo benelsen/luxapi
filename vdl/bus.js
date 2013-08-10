@@ -55,7 +55,7 @@ function getRoutesFromSource(callback) {
 
 function getRoutes(callback) {
 
-  var key = 'luxapi-bus-routes';
+  var key = config.memcached.prefix + '-bus-routes';
 
   memcached.get(key, function (err, cached) {
     if ( err ) console.error(err);
@@ -119,7 +119,7 @@ function getStopsOnRouteFromSource(route, callback) {
 
 function getStopsOnRoute(route, callback) {
 
-  var key = 'luxapi-bus-' + route + '-stops';
+  var key = config.memcached.prefix + '-bus-' + route + '-stops';
 
   memcached.get(key, function (err, cached) {
     if ( err ) console.error(err);
@@ -194,14 +194,12 @@ function getNextBusesForStopOnRouteFromSource(route, stop, callback) {
 
 function getNextBusesForStopOnRoute(route, stop, callback) {
 
-  var key = 'luxapi-bus-' + route + _.dasherize(stop) + '-next';
+  var key = config.memcached.prefix + '-bus-' + route + _.dasherize(stop) + '-next';
 
   memcached.get(key, function (err, cached) {
     if ( err ) console.error(err);
 
     if ( !err && cached ) {
-
-      console.log('cache');
 
       return callback(err, cached);
 
