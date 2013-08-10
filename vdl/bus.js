@@ -60,9 +60,13 @@ function getRoutes(callback) {
 
     if ( !err && cached ) {
 
+      console.info(key + ' from cache');
+
       return callback(err, cached);
 
     } else {
+
+      console.info(key + ' from source');
 
       getRoutesFromSource(function(err, data) {
         if ( err ) console.error(err);
@@ -124,9 +128,13 @@ function getStopsOnRoute(route, callback) {
 
     if ( !err && cached ) {
 
+      console.info(key + ' from cache');
+
       return callback(err, cached);
 
     } else {
+
+      console.info(key + ' from source');
 
       getStopsOnRouteFromSource(route, function(err, data) {
         if ( err ) console.error(err);
@@ -199,9 +207,13 @@ function getNextBusesForStopOnRoute(route, stop, callback) {
 
     if ( !err && cached ) {
 
+      console.info(key + ' from cache');
+
       return callback(err, cached);
 
     } else {
+
+      console.info(key + ' from source');
 
       getNextBusesForStopOnRouteFromSource(route, stop, function(err, data) {
         if ( err ) console.error(err);
