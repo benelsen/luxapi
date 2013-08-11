@@ -12,6 +12,8 @@ var memcached = new Memcached(config.memcached.servers, {
   timeout: 1000
 });
 
+var allRoutes = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19,21,22,23]
+
 var srcURL = 'http://service.vdl.lu/rss/circulation_guidageparking.php';
 
 var getRawData = function( callback ) {
@@ -80,7 +82,38 @@ var cleanRawData = function( data ) {
         amex:       ~~item['vdlxml:paiement']['vdlxml:paiementAmex']       > 0,
         call2park:  ~~item['vdlxml:paiement']['vdlxml:paiementCall2park']  > 0
       }
+
     };
+
+    var re = /(Haltestelle[n]? (?:([\w\S ]*)[,]?)[ ]?:.+\.)+/mg;
+    var re2 = /Haltestellen? ([^:]+) ?: [\w ]+ ([\d, ]+)/;
+
+    parking.publicTransport = [];
+
+    var str = item['vdlxml:divers']['vdlxml:diversLignebus'][1]._;
+    if ( !str ) return;
+
+    str.match(re).forEach( function(m) {
+
+      var matches = m.match(re2);
+
+      if ( !matches || !matches.length ) return;
+
+      var stops = matches[1].split(','),
+          routes = matches[2].split(',').map( function(r) {
+            return ~~r ? ~~r : r.trim();
+          });
+
+      if ( m.indexOf('ausser') > -1 ) routes = _.difference(allRoutes, routes);
+
+      stops.forEach( function(s) {
+        parking.publicTransport.push({
+          stop: s.trim(),
+          routes: routes
+        });
+      });
+
+    });
 
     return parking;
   });
