@@ -91,7 +91,7 @@ var cleanRawData = function( data ) {
     parking.publicTransport = [];
 
     var str = item['vdlxml:divers']['vdlxml:diversLignebus'][1]._;
-    if ( !str ) return;
+    if ( !str ) return parking;
 
     str.match(re).forEach( function(m) {
 
@@ -122,7 +122,7 @@ var cleanRawData = function( data ) {
     parkings: items,
     sourceDate: new Date(data.rss.channel.lastBuildDate),
     date: new Date(),
-    licenseInformation: "Data by Ville de Luxembourg under CC BY 3.0 LU"
+    licenseInformation: 'Data by Ville de Luxembourg under CC BY 3.0 LU'
   };
 
 };
@@ -161,10 +161,11 @@ var getCurrentData = function( callback ) {
 
 var makeGeoJSON = function(data) {
 
+  console.log(data.parkings);
+
   return {
     type: 'FeatureCollection',
     features: data.parkings.map( function(feature) {
-
       return {
         type: 'Feature',
         geometry: {
