@@ -1,7 +1,7 @@
 // *** Dependencies ***
 // Node:
 // External:
-var to_json = require('xmljson').to_json,
+var toJSON = require('xmljson').to_json,
     request = require('request'),
     _ = require('lodash'),
     Memcached = require('memcached');
@@ -12,7 +12,7 @@ var memcached = new Memcached(config.memcached.servers, {
   timeout: 1000
 });
 
-var allRoutes = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19,21,22,23]
+var allRoutes = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19,21,22,23];
 
 var srcURL = 'http://service.vdl.lu/rss/circulation_guidageparking.php';
 
@@ -21,7 +21,7 @@ var getRawData = function( callback ) {
   request( srcURL, function(httpError, response, body) {
     if ( httpError ) console.error(httpError);
 
-    to_json(body, function(jsonError, data) {
+    toJSON(body, function(jsonError, data) {
       if ( jsonError ) console.error(jsonError);
 
       callback(httpError || jsonError, data);
@@ -160,8 +160,6 @@ var getCurrentData = function( callback ) {
 };
 
 var makeGeoJSON = function(data) {
-
-  console.log(data.parkings);
 
   return {
     type: 'FeatureCollection',
