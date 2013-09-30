@@ -1,7 +1,7 @@
 // *** Dependencies ***
 // Node:
 // External:
-var to_json = require('xmljson').to_json,
+var toJSON = require('xmljson').to_json,
     request = require('request'),
     _ = require('lodash'),
     Memcached = require('memcached');
@@ -12,6 +12,8 @@ var memcached = new Memcached(config.memcached.servers, {
   timeout: 1000
 });
 
+var allRoutes = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19,21,22,23];
+
 var srcURL = 'http://service.vdl.lu/rss/circulation_guidageparking.php';
 
 var getRawData = function( callback ) {
@@ -19,7 +21,7 @@ var getRawData = function( callback ) {
   request( srcURL, function(httpError, response, body) {
     if ( httpError ) console.error(httpError);
 
-    to_json(body, function(jsonError, data) {
+    toJSON(body, function(jsonError, data) {
       if ( jsonError ) console.error(jsonError);
 
       callback(httpError || jsonError, data);
@@ -80,7 +82,38 @@ var cleanRawData = function( data ) {
         amex:       ~~item['vdlxml:paiement']['vdlxml:paiementAmex']       > 0,
         call2park:  ~~item['vdlxml:paiement']['vdlxml:paiementCall2park']  > 0
       }
+
     };
+
+    var re = /(Haltestelle[n]? (?:([\w\S ]*)[,]?)[ ]?:.+\.)+/mg;
+    var re2 = /Haltestellen? ([^:]+) ?: [\w ]+ ([\d, ]+)/;
+
+    parking.publicTransport = [];
+
+    var str = item['vdlxml:divers']['vdlxml:diversLignebus'][1]._;
+    if ( !str ) return parking;
+
+    str.match(re).forEach( function(m) {
+
+      var matches = m.match(re2);
+
+      if ( !matches || !matches.length ) return;
+
+      var stops = matches[1].split(','),
+          routes = matches[2].split(',').map( function(r) {
+            return ~~r ? ~~r : r.trim();
+          });
+
+      if ( m.indexOf('ausser') > -1 ) routes = _.difference(allRoutes, routes);
+
+      stops.forEach( function(s) {
+        parking.publicTransport.push({
+          stop: s.trim(),
+          routes: routes
+        });
+      });
+
+    });
 
     return parking;
   });
@@ -89,7 +122,7 @@ var cleanRawData = function( data ) {
     parkings: items,
     sourceDate: new Date(data.rss.channel.lastBuildDate),
     date: new Date(),
-    licenseInformation: "Data by Ville de Luxembourg under CC BY 3.0 LU"
+    licenseInformation: 'Data by Ville de Luxembourg under CC BY 3.0 LU'
   };
 
 };
@@ -131,7 +164,6 @@ var makeGeoJSON = function(data) {
   return {
     type: 'FeatureCollection',
     features: data.parkings.map( function(feature) {
-
       return {
         type: 'Feature',
         geometry: {

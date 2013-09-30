@@ -161,9 +161,9 @@ function getNextBusesForStopOnRouteFromSource(route, stop, callback) {
     function (err, window) {
       if ( err ) console.error(err);
 
-      var rows = window.document.querySelectorAll('table > tr');
+      var rows = window.document.querySelectorAll('table tr');
 
-      if ( rows[1].querySelector('td > font').innerHTML === 'Pas de données pour le moment' ) {
+      if ( rows[1].textContent === 'Pas de données pour le moment' ) {
         return callback(null, []);
       }
 
@@ -173,14 +173,12 @@ function getNextBusesForStopOnRouteFromSource(route, stop, callback) {
         var cells = rows[i].getElementsByTagName('td');
 
         data.push({
-          direction:  cells[0]
-                        .querySelector('font')
-                        .innerHTML
+          direction:  cells[1]
+                        .textContent
                         .replace(/&nbsp;/gi, ' ')
                         .trim(),
-          time:       cells[1]
-                        .querySelector('font')
-                        .innerHTML
+          time:       cells[2]
+                        .textContent
                         .replace(/&nbsp;/gi, ' ')
                         .trim()
         });
