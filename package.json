@@ -12,8 +12,8 @@
     "lodash": "~2.2.0",
     "request": "~2.27.0",
     "xmljson": "~0.2.0",
-    "jsdom": "~0.8.3",
-    "memcached": "~0.2.4",
+    "jsdom": "~0.8.6",
+    "memcached": "~0.2.5",
     "underscore.string": "~2.3.3"
   },
   "devDependencies": {},
