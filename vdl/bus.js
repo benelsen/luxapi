@@ -173,14 +173,12 @@ function getNextBusesForStopOnRouteFromSource(route, stop, callback) {
         var cells = rows[i].getElementsByTagName('td');
 
         data.push({
-          direction:  cells[0]
-                        .querySelector('font')
-                        .innerHTML
+          direction:  cells[1]
+                        .textContent
                         .replace(/&nbsp;/gi, ' ')
                         .trim(),
-          time:       cells[1]
-                        .querySelector('font')
-                        .innerHTML
+          time:       cells[2]
+                        .textContent
                         .replace(/&nbsp;/gi, ' ')
                         .trim()
         });
