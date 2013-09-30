@@ -161,9 +161,9 @@ function getNextBusesForStopOnRouteFromSource(route, stop, callback) {
     function (err, window) {
       if ( err ) console.error(err);
 
-      var rows = window.document.querySelectorAll('table > tr');
+      var rows = window.document.querySelectorAll('table tr');
 
-      if ( rows[1].querySelector('td > font').innerHTML === 'Pas de données pour le moment' ) {
+      if ( rows[1].textContent === 'Pas de données pour le moment' ) {
         return callback(null, []);
       }
 
