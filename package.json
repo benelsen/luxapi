@@ -1,6 +1,6 @@
 {
   "name": "luxapi",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "APIs for non-existant APIs",
   "repository": {
     "type": "git",
@@ -8,13 +8,13 @@
   },
   "main": "server.js",
   "dependencies": {
-    "express": "~3.4.0",
-    "lodash": "~2.2.0",
-    "request": "~2.27.0",
-    "xmljson": "~0.2.0",
-    "jsdom": "~0.8.6",
-    "memcached": "~0.2.5",
-    "underscore.string": "~2.3.3"
+    "express": "^4.1.2",
+    "lodash": "^2.4.1",
+    "request": "^2.34.0",
+    "xmljson": "^0.2.0",
+    "jsdom": "^0.10.5",
+    "memcached": "^0.2.8",
+    "underscore.string": "^2.3.3"
   },
   "devDependencies": {},
   "scripts": {},
