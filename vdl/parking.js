@@ -1,14 +1,14 @@
-// *** Dependencies ***
-// Node:
-// External:
-var toJSON = require('xmljson').to_json,
-    request = require('request'),
-    _ = require('lodash'),
-    Memcached = require('memcached');
 
-var config = JSON.parse( require('fs').readFileSync(__dirname + '/../config.json') );
+var toJSON = require('xmljson').to_json;
+var request = require('request');
+var _ = require('lodash');
+var Memcached = require('memcached');
 
-var memcached = new Memcached(config.memcached.servers, {
+var DB_HOST = process.env.DB_PORT_11211_TCP_ADDR || 'localhost';
+var DB_PORT = process.env.DB_PORT_11211_TCP_PORT || 11211;
+var DB_NAME = process.env.DB_NAME || 'luxapi';
+
+var memcached = new Memcached( DB_HOST + ':' + DB_PORT, {
   timeout: 1000
 });
 
@@ -129,7 +129,7 @@ var cleanRawData = function( data ) {
 
 var getCurrentData = function( callback ) {
 
-  var key = config.memcached.prefix + '-parking';
+  var key = 'parking';
 
   memcached.get(key, function (err, cached) {
     if ( err ) console.error(err);

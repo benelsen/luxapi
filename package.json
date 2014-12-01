@@ -1,6 +1,6 @@
 {
   "name": "luxapi",
-  "version": "0.2.2",
+  "version": "1.0.0",
   "description": "APIs for non-existant APIs",
   "repository": {
     "type": "git",
@@ -8,19 +8,18 @@
   },
   "main": "server.js",
   "dependencies": {
-    "express": "^4.1.2",
+    "express": "^4.10.4",
+    "jsdom": "^1.3.1",
     "lodash": "^2.4.1",
-    "request": "^2.34.0",
-    "xmljson": "^0.2.0",
-    "jsdom": "^0.10.5",
-    "memcached": "^0.2.8",
-    "underscore.string": "^2.3.3"
+    "memcached": "^2.0.0",
+    "request": "^2.49.0",
+    "underscore.string": "^2.4.0",
+    "xmljson": "^0.2.0"
   },
-  "devDependencies": {},
-  "scripts": {},
   "author": {
     "name": "Ben Elsen",
     "url": "http://benelsen.com"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "private": true
 }

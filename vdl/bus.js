@@ -1,16 +1,16 @@
-// *** Dependencies ***
-// Node:
-// External:
-var jsdom = require('jsdom'),
-    _ = require('lodash'),
-    Memcached = require('memcached');
+
+var jsdom = require('jsdom');
+var _ = require('lodash');
+var Memcached = require('memcached');
 
 _.str = require('underscore.string');
 _.mixin(_.str.exports());
 
-var config = JSON.parse( require('fs').readFileSync(__dirname + '/../config.json') );
+var DB_HOST = process.env.DB_PORT_11211_TCP_ADDR || 'localhost';
+var DB_PORT = process.env.DB_PORT_11211_TCP_PORT || 11211;
+var DB_NAME = process.env.DB_NAME || 'luxapi';
 
-var memcached = new Memcached(config.memcached.servers, {
+var memcached = new Memcached( DB_HOST + ':' + DB_PORT, {
   timeout: 1000
 });
 
@@ -55,7 +55,7 @@ function getRoutesFromSource(callback) {
 
 function getRoutes(callback) {
 
-  var key = config.memcached.prefix + '-bus-routes';
+  var key = 'bus-routes';
 
   memcached.get(key, function (err, cached) {
     if ( err ) console.error(err);
@@ -119,7 +119,7 @@ function getStopsOnRouteFromSource(route, callback) {
 
 function getStopsOnRoute(route, callback) {
 
-  var key = config.memcached.prefix + '-bus-' + route + '-stops';
+  var key = 'bus-' + route + '-stops';
 
   memcached.get(key, function (err, cached) {
     if ( err ) console.error(err);
@@ -192,7 +192,7 @@ function getNextBusesForStopOnRouteFromSource(route, stop, callback) {
 
 function getNextBusesForStopOnRoute(route, stop, callback) {
 
-  var key = config.memcached.prefix + '-bus-' + route + _.dasherize(stop) + '-next';
+  var key = 'bus-' + route + _.dasherize(stop) + '-next';
 
   memcached.get(key, function (err, cached) {
     if ( err ) console.error(err);
