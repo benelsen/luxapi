@@ -15,7 +15,7 @@ $ cd luxapi
 $ npm install
 $ node server
 ```
-The endpoints are available relative to [localhost:4003](http://localhost:4003/)
+The endpoints are available relative to [localhost:3000](http://localhost:3000/)
 
 ## License
 
