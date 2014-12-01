@@ -13,6 +13,7 @@
 $ git clone https://github.com/benelsen/luxapi.git
 $ cd luxapi
 $ npm install
+$ memcached -p 11211 &
 $ node server
 ```
 The endpoints are available relative to [localhost:3000](http://localhost:3000/)
