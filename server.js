@@ -2,7 +2,7 @@
 'use strict';
 
 var express = require('express');
-
+var boom = require('boom');
 var app = express();
 
 // Allow CORS
@@ -16,13 +16,12 @@ app.all('*', function(req, res, next) {
 var vdl = require('./vdl');
 
 // ** parking
-app.get('/vdl/parking.json',    vdl.parking.json);
-app.get('/vdl/parking.geojson', vdl.parking.geojson);
+app.get('/vdl/parking.:fmt?', vdl.parking.get);
 
 // ** bus
-app.get('/vdl/bus/routes.json', vdl.bus.routes);
-app.get('/vdl/bus/:route/stops.json', vdl.bus.stops);
-app.get('/vdl/bus/:route/:stop/next.json', vdl.bus.nextBuses);
+app.get('/vdl/bus/routes', vdl.bus.routes);
+app.get('/vdl/bus/routes/:route/stops', vdl.bus.stops);
+app.get('/vdl/bus/routes/:route/stops/:stop', vdl.bus.nextBuses);
 
 // * status
 app.get('/status', function(req, res) {

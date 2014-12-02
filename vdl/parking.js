@@ -187,25 +187,21 @@ var makeGeoJSON = function(data) {
 };
 
 
-module.exports = {
+module.exports.get = function (req, res) {
 
-  json: function(req, res) {
+  if ( req.params.fmt === 'geojson' ) {
 
-    getCurrentData( function(err, data) {
+    getCurrentData( function (err, data) {
       if ( err ) console.error(err);
-      res.send(data);
+      var geojson = makeGeoJSON(data);
+      res.send(geojson);
     });
 
-  },
+  } else {
 
-  geojson: function(req, res) {
-
-    getCurrentData( function(err, data) {
+    getCurrentData( function (err, data) {
       if ( err ) console.error(err);
-
-      var geojson = makeGeoJSON(data);
-
-      res.send(geojson);
+      res.send(data);
     });
 
   }
