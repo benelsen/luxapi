@@ -12,7 +12,7 @@ var memcached = new Memcached( DB_HOST + ':' + DB_PORT, {
   timeout: 1000
 });
 
-var allRoutes = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19,21,22,23];
+var allRoutes = [1,2,3,4,5,6,8,9,10,11,12,13,14,15,16,18,19,21,22,23,24,25,26,27,28,29,30,31,0];
 
 var srcURL = 'http://service.vdl.lu/rss/circulation_guidageparking.php';
 
@@ -187,25 +187,21 @@ var makeGeoJSON = function(data) {
 };
 
 
-module.exports = {
+module.exports.get = function (req, res) {
 
-  json: function(req, res) {
+  if ( req.params.fmt === 'geojson' ) {
 
-    getCurrentData( function(err, data) {
+    getCurrentData( function (err, data) {
       if ( err ) console.error(err);
-      res.send(data);
+      var geojson = makeGeoJSON(data);
+      res.send(geojson);
     });
 
-  },
+  } else {
 
-  geojson: function(req, res) {
-
-    getCurrentData( function(err, data) {
+    getCurrentData( function (err, data) {
       if ( err ) console.error(err);
-
-      var geojson = makeGeoJSON(data);
-
-      res.send(geojson);
+      res.send(data);
     });
 
   }
