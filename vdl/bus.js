@@ -32,7 +32,7 @@ function getRoutesFromSource(callback) {
         var routeNumber = stops[i].querySelector('img').alt;
         routeNumber = ~~routeNumber.slice( routeNumber.indexOf(':')+2 );
 
-        var route = stops[i].querySelector('h1').innerHTML.replace('<br />', '').trim();
+        var route = stops[i].querySelector('h1').innerHTML.replace('<br />', '').replace('<br>', '').trim();
 
         if ( route.indexOf('-') < 0 ) continue;
 
@@ -40,7 +40,7 @@ function getRoutesFromSource(callback) {
           number: routeNumber,
           start:  route.slice(0, route.indexOf('-')-1 ),
           end:    route.slice(route.indexOf('-')+2 ),
-          link:   encodeURI(_.template('/vdl/bus/routes/${ route }/stops/', {
+          link:   encodeURI(_.template('/vdl/bus/routes/${ route }/stops/')({
             route: routeNumber
           }))
         });
@@ -86,7 +86,7 @@ function getStopsOnRouteFromSource(route, callback) {
 
   var urlTemplate = 'http://service.vdl.lu/hotcity/mobility/index.php?city=vdl&service=bus&routeId=${ route }';
 
-  var url = encodeURI(_.template(urlTemplate, {
+  var url = encodeURI(_.template(urlTemplate)({
       route: route
     }));
 
@@ -104,7 +104,7 @@ function getStopsOnRouteFromSource(route, callback) {
 
         data.push({
           name: stop,
-          link: encodeURI(_.template('/vdl/bus/routes/${ route }/stops/${ name }/', {
+          link: encodeURI(_.template('/vdl/bus/routes/${ route }/stops/${ name }/')({
             route: route,
             name: stop
           }))
@@ -151,7 +151,7 @@ function getNextBusesForStopOnRouteFromSource(route, stop, callback) {
 
   var urlTemplate = 'http://service.vdl.lu/hotcity/mobility/index.php?city=vdl&service=bus&routeId=${ route }&stopId=${ stop }&nRows=12';
 
-  var url = encodeURI(_.template(urlTemplate, {
+  var url = encodeURI(_.template(urlTemplate)({
     route: route,
     stop: stop
   })).replace('+', '%2B');
