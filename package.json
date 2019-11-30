@@ -7,10 +7,14 @@
     "url": "https://github.com/benelsen/luxapi.git"
   },
   "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
-    "boom": "^3.1.2",
+    "@hapi/boom": "^8.0.1",
+    "canvas": "^2.6.0",
     "express": "^4.13.4",
-    "jsdom": "^8.0.2",
+    "jsdom": "^15.2.1",
     "lodash": "^4.2.1",
     "memcached": "^2.2.1",
     "request": "^2.69.0",

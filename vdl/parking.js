@@ -14,7 +14,7 @@ var memcached = new Memcached( DB_HOST + ':' + DB_PORT, {
 
 var allRoutes = [1,2,3,4,5,6,8,9,10,11,12,13,14,15,16,18,19,21,22,23,24,25,26,27,28,29,30,31,0];
 
-var srcURL = 'http://service.vdl.lu/rss/circulation_guidageparking.php';
+var srcURL = 'https://feed.vdl.lu/circulation/parking/feed.rss';
 
 var getRawData = function( callback ) {
 
@@ -32,55 +32,65 @@ var getRawData = function( callback ) {
 
 };
 
+function def(string, def) {
+  return string ? ~~string : def
+}
+
 var cleanRawData = function( data ) {
 
   var items = _.map( data.rss.channel.item, function(item) {
 
     var parking = {
       name:   item.title,
-      open: ~~item['vdlxml:ouvert'] > 0 ? true : false,
       link:   item.guid,
 
-      available: ~~item['vdlxml:actuel'],
-      occupied:  ~~item['vdlxml:total'] - ~~item['vdlxml:actuel'],
-      trend:     ~~item['vdlxml:tendance'],
+      open: item['vdlxml:ouvert']  && ~~item['vdlxml:ouvert']  > 0 ? true : false,
+      full: item['vdlxml:complet'] && ~~item['vdlxml:complet'] > 0 ? true : false,
+
+      available: def(item['vdlxml:actuel'], null),
+      occupied:  def(item['vdlxml:total'], null) - def(item['vdlxml:actuel'], null),
+      trend:     def(item['vdlxml:tendance'], null),
 
       capacity: {
-        total:       ~~item['vdlxml:nominal']['vdlxml:nominalTotal'],
-        foruse:      ~~item['vdlxml:total'],
-        overground:  ~~item['vdlxml:nominal']['vdlxml:nominalSurface'],
-        underground: ~~item['vdlxml:nominal']['vdlxml:nominalCouvertes'],
-        woman:       ~~item['vdlxml:nominal']['vdlxml:nominalFemmes'],
-        disabled:    ~~item['vdlxml:nominal']['vdlxml:nominalHandicapes'],
-        bicylce:     ~~item['vdlxml:nominal']['vdlxml:nominalVelos'],
-        motorcycle:  ~~item['vdlxml:nominal']['vdlxml:nominalMotos'],
-        buses:       ~~item['vdlxml:nominal']['vdlxml:nominalAutocars']
+        total:             def(item['vdlxml:nominal']['vdlxml:nominalTotal'], null),
+        foruse:            def(item['vdlxml:total'], null),
+        overground:        def(item['vdlxml:nominal']['vdlxml:nominalSurface'], null),
+        underground:       def(item['vdlxml:nominal']['vdlxml:nominalCouvertes'], null),
+        women:             def(item['vdlxml:nominal']['vdlxml:nominalFemmes'], null),
+        mobility_impaired: def(item['vdlxml:nominal']['vdlxml:nominalHandicapes'], null),
+        bicylce:           def(item['vdlxml:nominal']['vdlxml:nominalVelos'], null),
+        motorcycle:        def(item['vdlxml:nominal']['vdlxml:nominalMotos'], null),
+        buses:             def(item['vdlxml:nominal']['vdlxml:nominalAutocars'], null)
       },
 
       location: {
-        address:    item['vdlxml:localisation']['vdlxml:localisationEntree'],
-        latitude:  +item['vdlxml:localisation']['vdlxml:localisationLatitude'],
-        longitude: +item['vdlxml:localisation']['vdlxml:localisationLongitude']
+        address:       item['vdlxml:localisation']['vdlxml:localisationEntree'],
+        latitude:     +item['vdlxml:localisation']['vdlxml:localisationLatitude'],
+        longitude:    +item['vdlxml:localisation']['vdlxml:localisationLongitude'],
+        address_entry: item['vdlxml:localisation']['vdlxml:localisationEntree'],
+        address_exit:  item['vdlxml:localisation']['vdlxml:localisationSortie'],
       },
 
       restrictions: {
-        lpg:       ~~item['vdlxml:restrictions']['vdlxml:restrictionsNoGpl']      === 0,
-        cng:       ~~item['vdlxml:restrictions']['vdlxml:restrictionsNoGNC']      === 0,
-        spikes:    ~~item['vdlxml:restrictions']['vdlxml:restrictionsNoClous']    === 0,
-        trailer:   ~~item['vdlxml:restrictions']['vdlxml:restrictionsNoRemorque'] === 0,
-        over3t5:   ~~item['vdlxml:restrictions']['vdlxml:restrictionsNo3t5']      === 0,
-        maxHeight: +(item['vdlxml:restrictions']['vdlxml:restrictionsMaxHauteur'] || '').replace(',','.').slice(0,-2)
+        lpg:        item['vdlxml:restrictions']['vdlxml:restrictionsNoGpl']      ? item['vdlxml:restrictions']['vdlxml:restrictionsNoGpl']      === 0 : null,
+        cng:        item['vdlxml:restrictions']['vdlxml:restrictionsNoGNC']      ? item['vdlxml:restrictions']['vdlxml:restrictionsNoGNC']      === 0 : null,
+        spikes:     item['vdlxml:restrictions']['vdlxml:restrictionsNoClous']    ? item['vdlxml:restrictions']['vdlxml:restrictionsNoClous']    === 0 : null,
+        motorcycle: item['vdlxml:restrictions']['vdlxml:restrictionsNoMoto']     ? item['vdlxml:restrictions']['vdlxml:restrictionsNoMoto']     === 0 : null,
+        trailer:    item['vdlxml:restrictions']['vdlxml:restrictionsNoRemorque'] ? item['vdlxml:restrictions']['vdlxml:restrictionsNoRemorque'] === 0 : null,
+        max_weight: item['vdlxml:restrictions']['vdlxml:restrictionsMaxPoids']   ? +(item['vdlxml:restrictions']['vdlxml:restrictionsMaxPoids']).replace(',','.').slice(0,-1) : null,
+        max_height: item['vdlxml:restrictions']['vdlxml:restrictionsMaxHauteur'] ? +(item['vdlxml:restrictions']['vdlxml:restrictionsMaxHauteur']).replace(',','.').slice(0,-2) : null,
       },
 
       payment: {
-        cash:       ~~item['vdlxml:paiement']['vdlxml:paiementEspeces']    > 0,
-        minicash:   ~~item['vdlxml:paiement']['vdlxml:paiementMinicash']   > 0,
-        maestro:    ~~item['vdlxml:paiement']['vdlxml:paiementMaestro']    > 0,
-        visa:       ~~item['vdlxml:paiement']['vdlxml:paiementVisa']       > 0,
-        mastercard: ~~item['vdlxml:paiement']['vdlxml:paiementMastercard'] > 0,
-        eurocard:   ~~item['vdlxml:paiement']['vdlxml:paiementEurocard']   > 0,
-        amex:       ~~item['vdlxml:paiement']['vdlxml:paiementAmex']       > 0,
-        call2park:  ~~item['vdlxml:paiement']['vdlxml:paiementCall2park']  > 0
+        cash:       item['vdlxml:paiement']['vdlxml:paiementEspeces']    ? item['vdlxml:paiement']['vdlxml:paiementEspeces']    > 0 : null,
+        maestro:    item['vdlxml:paiement']['vdlxml:paiementMaestro']    ? item['vdlxml:paiement']['vdlxml:paiementMaestro']    > 0 : null,
+        visa:       item['vdlxml:paiement']['vdlxml:paiementVisa']       ? item['vdlxml:paiement']['vdlxml:paiementVisa']       > 0 : null,
+        mastercard: item['vdlxml:paiement']['vdlxml:paiementMastercard'] ? item['vdlxml:paiement']['vdlxml:paiementMastercard'] > 0 : null,
+        digicash:   item['vdlxml:paiement']['vdlxml:paiementDigicash']   ? item['vdlxml:paiement']['vdlxml:paiementDigicash']   > 0 : null,
+        amex:       item['vdlxml:paiement']['vdlxml:paiementAmex']       ? item['vdlxml:paiement']['vdlxml:paiementAmex']       > 0 : null,
+        call2park:  item['vdlxml:paiement']['vdlxml:paiementCall2park']  ? item['vdlxml:paiement']['vdlxml:paiementCall2park']  > 0 : null,
+        eurocard:   item['vdlxml:paiement']['vdlxml:paiementEurocard']   ? item['vdlxml:paiement']['vdlxml:paiementEurocard']   > 0 : null,
+        minicash:   item['vdlxml:paiement']['vdlxml:paiementMinicash']   ? item['vdlxml:paiement']['vdlxml:paiementMinicash']   > 0 : null,
       }
 
     };
@@ -90,7 +100,7 @@ var cleanRawData = function( data ) {
 
     parking.publicTransport = [];
 
-    var str = item['vdlxml:divers']['vdlxml:diversLignebus'][1]._;
+    var str = item['vdlxml:localisation']['vdlxml:localisationMobilite'][1]._;
     if ( !str ) return parking;
 
     str.match(re).forEach( function(m) {

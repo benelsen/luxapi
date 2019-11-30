@@ -2,7 +2,7 @@
 'use strict';
 
 var express = require('express');
-var boom = require('boom');
+var boom = require('@hapi/boom');
 var app = express();
 
 // Allow CORS
@@ -19,13 +19,14 @@ var vdl = require('./vdl');
 app.get('/vdl/parking.:fmt?', vdl.parking.get);
 
 // ** bus
-app.get('/vdl/bus/routes', vdl.bus.routes);
-app.get('/vdl/bus/routes/:route/stops', vdl.bus.stops);
-app.get('/vdl/bus/routes/:route/stops/:stop', vdl.bus.nextBuses);
+app.get('/vdl/bus', (req, res) => res.sendStatus(501)); // vdl.bus.routes);
+app.get('/vdl/bus/routes', (req, res) => res.sendStatus(501)); // vdl.bus.routes);
+app.get('/vdl/bus/routes/:route/stops', (req, res) => res.sendStatus(501)); // vdl.bus.stops);
+app.get('/vdl/bus/routes/:route/stops/:stop', (req, res) => res.sendStatus(501)); // vdl.bus.nextBuses);
 
 // * status
 app.get('/status', function(req, res) {
-  res.send(200);
+  res.sendStatus(200);
 });
 
 app.set('port', process.env.PORT || 3000);
